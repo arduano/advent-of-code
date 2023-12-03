@@ -2,7 +2,7 @@ use std::ops::*;
 
 use crate::{Grid2, Pos2, ToSignedIndex, Vec2};
 
-pub struct IGrid2<T: Default> {
+pub struct IGrid2<T: Clone> {
     grid: Grid2<T>,
     up: usize,
     left: usize,
@@ -25,13 +25,25 @@ fn get_dim_size(current: usize, index: isize) -> usize {
     next_fitting_square as usize
 }
 
-impl<T: Default> IGrid2<T> {
-    pub fn new() -> Self {
+impl<T: Clone> IGrid2<T> {
+    pub fn new_with_default() -> Self
+    where
+        T: Default,
+    {
         Self {
-            grid: Grid2::new_default(0, 0),
+            grid: Grid2::new_empty(),
             up: 0,
             left: 0,
             default: T::default(),
+        }
+    }
+
+    pub fn new_with(default: T) -> Self {
+        Self {
+            grid: Grid2::new_empty(),
+            up: 0,
+            left: 0,
+            default,
         }
     }
 
@@ -87,9 +99,9 @@ impl<T: Default> IGrid2<T> {
         let new_grid = Grid2::from_fn(new_width, new_height, |c| {
             let inner_coord = c.map(|d| d as isize) - Vec2::new(new_left as isize, new_up as isize);
             if let Some(inner_coord) = self.get_inner_grid_coord(inner_coord) {
-                std::mem::replace(&mut self.grid[inner_coord], Default::default())
+                std::mem::replace(&mut self.grid[inner_coord], self.default.clone())
             } else {
-                Default::default()
+                self.default.clone()
             }
         });
 
@@ -113,7 +125,7 @@ impl<T: Default> IGrid2<T> {
     }
 }
 
-impl<T: Default, I: ToSignedIndex + std::fmt::Debug + Copy + Default> Index<Pos2<I>> for IGrid2<T> {
+impl<T: Clone, I: ToSignedIndex + std::fmt::Debug + Copy + Default> Index<Pos2<I>> for IGrid2<T> {
     type Output = T;
 
     fn index(&self, index: Pos2<I>) -> &Self::Output {
@@ -121,7 +133,7 @@ impl<T: Default, I: ToSignedIndex + std::fmt::Debug + Copy + Default> Index<Pos2
     }
 }
 
-impl<T: Default, I: ToSignedIndex + std::fmt::Debug + Copy + Default> IndexMut<Pos2<I>>
+impl<T: Clone, I: ToSignedIndex + std::fmt::Debug + Copy + Default> IndexMut<Pos2<I>>
     for IGrid2<T>
 {
     fn index_mut(&mut self, index: Pos2<I>) -> &mut Self::Output {
@@ -135,7 +147,7 @@ mod tests {
 
     #[test]
     fn test_igrid2() {
-        let mut grid = IGrid2::<usize>::new();
+        let mut grid = IGrid2::<usize>::new_with_default();
         assert_eq!(grid.up_capacity(), 0);
         assert_eq!(grid.left_capacity(), 0);
         assert_eq!(grid.down_capacity(), 0);

@@ -38,7 +38,7 @@ fn part2() {
     let input = INPUT.parse::<u32>().unwrap();
     // let input = 747;
 
-    let mut grid = IGrid2::<u32>::new();
+    let mut grid = IGrid2::<u32>::new_with_default();
 
     let mut val = None;
 

@@ -2,21 +2,12 @@ use shared::*;
 
 const INPUT: &str = day_input!();
 
-fn is_valid_symbol(c: char) -> bool {
-    // c is not:
-    // - a digit
-    // - a period
-    // - null
-
-    !c.is_ascii_digit() && c != '.' && c != '\0'
-}
-
 fn part1() {
     let lines = parse_lines::<String>(INPUT);
 
     let width = lines[0].len();
 
-    let mut grid = IGrid2::<char>::new();
+    let mut grid = IGrid2::<char>::new_with_default();
 
     for (y, line) in lines.iter().enumerate() {
         for (x, c) in line.chars().enumerate() {
@@ -33,9 +24,9 @@ fn part1() {
             let coord = Pos2::new(x, y);
 
             let remaining = &line[(x as usize)..];
+
             // Check if a number starts at this char
             let length = remaining.chars().take_while(|c| c.is_ascii_digit()).count() as isize;
-
             if length == 0 {
                 x += 1;
                 continue;
@@ -53,9 +44,9 @@ fn part1() {
 
                     let coord2 = coord + Vec2::new(x2, y2);
 
-                    let char = grid.get(coord2);
+                    let c = *grid.get(coord2);
 
-                    if is_valid_symbol(*char) {
+                    if !c.is_ascii_digit() && c != '.' {
                         has_adjacent = true;
                         break 'outer;
                     }
@@ -79,8 +70,8 @@ fn part2() {
     let width = lines[0].len();
     let height = lines.len();
 
-    let mut grid = IGrid2::<char>::new();
-    let mut gear_ratiod = IGrid2::<Vec<u32>>::new();
+    let mut grid = IGrid2::<char>::new_with('.');
+    let mut gear_ratiod = IGrid2::<Vec<u32>>::new_with_default();
 
     for (y, line) in lines.iter().enumerate() {
         for (x, c) in line.chars().enumerate() {
@@ -95,9 +86,9 @@ fn part2() {
             let coord = Pos2::new(x, y);
 
             let remaining = &line[(x as usize)..];
+
             // Check if a number starts at this char
             let length = remaining.chars().take_while(|c| c.is_ascii_digit()).count() as isize;
-
             if length == 0 {
                 x += 1;
                 continue;

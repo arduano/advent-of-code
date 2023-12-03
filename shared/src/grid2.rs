@@ -10,6 +10,14 @@ pub struct Grid2<T> {
 }
 
 impl<T> Grid2<T> {
+    pub fn new_empty() -> Self {
+        Self {
+            data: vec![],
+            width: 0,
+            height: 0,
+        }
+    }
+
     pub fn new_default(width: usize, height: usize) -> Self
     where
         T: Default,
