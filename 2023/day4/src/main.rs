@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use shared::*;
 
 const INPUT: &str = day_input!();
@@ -12,29 +10,21 @@ struct Card {
 }
 
 fn parse_card(str: &str) -> Card {
-    let mut parts = str.split(": ");
+    let (game_part, numbers) = str.split_at_str(": ");
 
-    let id = parts
-        .next()
-        .unwrap()
-        .split_whitespace()
-        .nth(1)
-        .unwrap()
-        .parse::<u32>()
-        .unwrap();
-    let mut parts = parts.next().unwrap().split(" | ");
-    let first = parts
-        .next()
-        .unwrap()
+    let (_, id) = game_part.split_at_whitespace();
+    let id = id.parse::<u32>().unwrap();
+
+    let (left, right) = numbers.split_at_char('|');
+    let first = left
         .split_whitespace()
         .map(|s| s.parse::<u32>().unwrap())
-        .collect::<Vec<_>>();
-    let second = parts
-        .next()
-        .unwrap()
+        .to_vec();
+
+    let second = right
         .split_whitespace()
         .map(|s| s.parse::<u32>().unwrap())
-        .collect::<Vec<_>>();
+        .to_vec();
 
     Card {
         _id: id,
@@ -45,11 +35,11 @@ fn parse_card(str: &str) -> Card {
 
 fn parse_input() -> Vec<Card> {
     let lines = parse_lines::<String>(INPUT);
-    lines.into_iter().map(|s| parse_card(&s)).collect()
+    lines.into_iter().map(|s| parse_card(&s)).to_vec()
 }
 
 fn get_card_matches(card: &Card) -> u32 {
-    let all_winning_numbers = card.first.iter().collect::<HashSet<_>>();
+    let all_winning_numbers = card.first.iter().to_set();
     let mut matching_numbers = 0;
     for number in card.second.iter() {
         if all_winning_numbers.contains(number) {
@@ -65,7 +55,7 @@ fn part1() {
 
     let mut sum = 0;
     for card in cards {
-        let all_winning_numbers = card.first.iter().collect::<HashSet<_>>();
+        let all_winning_numbers = card.first.iter().to_set();
         let mut matching_numbers = 0;
         for number in card.second.iter() {
             if all_winning_numbers.contains(number) {
@@ -104,10 +94,7 @@ fn part2() {
 
 fn part2_improved() {
     let cards = parse_input();
-    let card_matches = cards
-        .iter()
-        .map(|card| get_card_matches(card))
-        .collect::<Vec<_>>();
+    let card_matches = cards.iter().map(|card| get_card_matches(card)).to_vec();
 
     let mut match_counts = vec![0; cards.len()];
 
