@@ -102,7 +102,32 @@ fn part2() {
     println!("Part 2: {}", sum)
 }
 
+fn part2_improved() {
+    let cards = parse_input();
+    let card_matches = cards
+        .iter()
+        .map(|card| get_card_matches(card))
+        .collect::<Vec<_>>();
+
+    let mut match_counts = vec![0; cards.len()];
+
+    // Dynamically go from end to start, calculating
+    for i in (0..cards.len()).rev() {
+        let matches = card_matches[i] as usize;
+
+        let match_counts_slice = &mut match_counts[i + 1..i + matches + 1];
+        let sum = match_counts_slice.iter().sum::<usize>();
+
+        match_counts[i] = sum + 1;
+    }
+
+    let sum = match_counts.iter().sum::<usize>();
+
+    println!("Part 2 improved: {}", sum)
+}
+
 fn main() {
     part1();
     part2();
+    part2_improved();
 }
