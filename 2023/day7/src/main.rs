@@ -193,18 +193,6 @@ impl Hand {
     }
 }
 
-impl std::cmp::PartialOrd for Hand {
-    fn partial_cmp(&self, other: &Self) -> Option<std::cmp::Ordering> {
-        if self.is_hand_stronger_than(other) {
-            Some(std::cmp::Ordering::Greater)
-        } else if other.is_hand_stronger_than(self) {
-            Some(std::cmp::Ordering::Less)
-        } else {
-            Some(std::cmp::Ordering::Equal)
-        }
-    }
-}
-
 fn parse_input() -> Vec<Hand> {
     INPUT
         .lines()
