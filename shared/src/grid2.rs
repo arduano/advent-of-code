@@ -98,6 +98,10 @@ impl<T> Grid2<T> {
         let index = self.get_pos_index(pos)?;
         Some(&mut self.data[index])
     }
+
+    pub fn is_in_bounds(&self, pos: Pos2<impl ToUnsignedIndex + std::fmt::Debug + Copy>) -> bool {
+        self.get_pos_index(pos).is_some()
+    }
 }
 
 impl<T, I: ToUnsignedIndex + std::fmt::Debug + Copy> Index<Pos2<I>> for Grid2<T> {
