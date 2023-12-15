@@ -56,6 +56,11 @@ impl<T> Grid2<T> {
     fn get_pos_index<I: ToUnsignedIndex + Copy>(&self, pos: Pos2<I>) -> Option<usize> {
         let pos = Pos2::new(pos.x.to_index()?, pos.y.to_index()?);
         let index = pos.y * self.width + pos.x;
+
+        if pos.x >= self.width || pos.y >= self.height {
+            return None;
+        }
+
         if index < self.data.len() {
             Some(index)
         } else {

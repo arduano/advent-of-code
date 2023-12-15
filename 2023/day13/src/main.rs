@@ -56,26 +56,24 @@ fn do_differences(grid: &Grid2<Tile>, col1: usize, col2: usize) -> u32 {
 }
 
 fn rows_diff_count_after(grid: &Grid2<Tile>, row: usize) -> u32 {
-    let remaining_up = grid.height() - row - 2;
-    let remianing_down = row;
-    let remaining = remaining_up.min(remianing_down);
+    let down_iter = (0..=row).rev();
+    let up_iter = row + 1..grid.height();
 
     let mut sum = 0;
-    for y in 0..=remaining {
-        sum += rows_differences(grid, row + y + 1, row - y);
+    for (y1, y2) in down_iter.zip(up_iter) {
+        sum += rows_differences(grid, y1, y2);
     }
 
     sum
 }
 
 fn cols_diff_count_after(grid: &Grid2<Tile>, col: usize) -> u32 {
-    let remaining_left = grid.width() - col - 2;
-    let remaining_right = col;
-    let remaining = remaining_left.min(remaining_right);
+    let left_iter = (0..=col).rev();
+    let right_iter = col + 1..grid.width();
 
     let mut sum = 0;
-    for x in 0..=remaining {
-        sum += do_differences(grid, col + x + 1, col - x);
+    for (x1, x2) in left_iter.zip(right_iter) {
+        sum += do_differences(grid, x1, x2);
     }
 
     sum
