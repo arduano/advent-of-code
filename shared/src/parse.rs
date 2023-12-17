@@ -1,5 +1,7 @@
 use std::str::FromStr;
 
+use crate::Grid2;
+
 pub fn parse_lines_words(input: &str) -> Vec<Vec<&str>> {
     input
         .lines()
@@ -43,6 +45,22 @@ where
         .lines()
         .map(|l| l.parse::<T>().unwrap())
         .collect::<Vec<_>>()
+}
+
+pub fn parse_grid2<T: FromStr>(input: &str) -> Grid2<T>
+where
+    T::Err: std::fmt::Debug,
+{
+    let parsed = input
+        .lines()
+        .map(|l| {
+            l.chars()
+                .map(|c| c.to_string().parse::<T>().unwrap())
+                .collect::<Vec<_>>()
+        })
+        .collect::<Vec<_>>();
+
+    parsed.into()
 }
 
 pub trait SplitHelpers {

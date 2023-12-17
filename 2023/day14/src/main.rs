@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use shared::*;
 
 const INPUT: &str = day_input!();
@@ -20,9 +22,11 @@ enum Cell {
     Empty,       // .
 }
 
-impl Default for Cell {
-    fn default() -> Self {
-        Cell::Empty
+impl FromStr for Cell {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(cell_from_char(s.chars().next().unwrap()))
     }
 }
 
@@ -35,28 +39,8 @@ fn cell_from_char(c: char) -> Cell {
     }
 }
 
-fn parse_grid(input: &str) -> Vec<Vec<Cell>> {
-    input
-        .lines()
-        .map(|line| line.chars().map(cell_from_char).collect())
-        .collect()
-}
-
 fn parse_input() -> Grid2<Cell> {
-    let vecs = parse_grid(INPUT);
-    let width = vecs[0].len();
-    let height = vecs.len();
-
-    let mut grid = Grid2::new_default(width, height);
-
-    for (y, row) in vecs.iter().enumerate() {
-        for (x, cell) in row.iter().enumerate() {
-            let pos = Pos2::new(x, y);
-            *grid.get_mut(pos).unwrap() = *cell;
-        }
-    }
-
-    grid
+    parse_grid2(INPUT)
 }
 
 fn print_grid(grid: &Grid2<Cell>) {

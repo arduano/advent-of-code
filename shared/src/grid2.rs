@@ -123,3 +123,23 @@ impl<T, I: ToUnsignedIndex + std::fmt::Debug + Copy> IndexMut<Pos2<I>> for Grid2
         &mut self.data[index]
     }
 }
+
+impl<T> From<Vec<Vec<T>>> for Grid2<T> {
+    fn from(vecs: Vec<Vec<T>>) -> Self {
+        let width = vecs[0].len();
+        let height = vecs.len();
+
+        let mut data = Vec::with_capacity(width * height);
+
+        for row in vecs {
+            assert_eq!(row.len(), width);
+            data.extend(row);
+        }
+
+        Self {
+            data,
+            width,
+            height,
+        }
+    }
+}
