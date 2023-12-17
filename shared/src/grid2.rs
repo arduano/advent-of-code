@@ -31,6 +31,17 @@ impl<T> Grid2<T> {
         }
     }
 
+    pub fn new_with(width: usize, height: usize, val: T) -> Self
+    where
+        T: Clone,
+    {
+        Self {
+            data: (0..width * height).map(|_| val.clone()).collect::<Vec<_>>(),
+            width,
+            height,
+        }
+    }
+
     pub fn from_fn(width: usize, height: usize, mut f: impl FnMut(Pos2<usize>) -> T) -> Self {
         let mut data = Vec::with_capacity(width * height);
         for y in 0..height {
@@ -106,6 +117,11 @@ impl<T> Grid2<T> {
 
     pub fn is_in_bounds(&self, pos: Pos2<impl ToUnsignedIndex + std::fmt::Debug + Copy>) -> bool {
         self.get_pos_index(pos).is_some()
+    }
+
+    pub fn set(&mut self, pos: Pos2<impl ToUnsignedIndex + std::fmt::Debug + Copy>, value: T) {
+        let index = self.get_pos_index_or_panic(pos);
+        self.data[index] = value;
     }
 }
 
