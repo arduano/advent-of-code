@@ -2,13 +2,13 @@ use std::ops::*;
 
 use crate::One;
 
-#[derive(Copy, Clone, PartialEq, Eq, Default)]
+#[derive(Copy, Clone, PartialEq, Eq, Default, Hash)]
 pub struct Vec2<T> {
     pub x: T,
     pub y: T,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Default)]
+#[derive(Copy, Clone, PartialEq, Eq, Default, Hash)]
 pub struct Pos2<T>(Vec2<T>);
 
 impl<T> Vec2<T> {

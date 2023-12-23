@@ -129,6 +129,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "day21-2023"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "day22-2023"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
+name = "day23-2023"
+version = "0.1.0"
+dependencies = [
+ "shared",
+]
+
+[[package]]
 name = "day3-2017"
 version = "0.1.0"
 dependencies = [
