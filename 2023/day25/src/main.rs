@@ -310,9 +310,9 @@ fn as_astar_graph<N, E>(graph: &Graph<N, E>, start: NodeId) -> Graph<u32, ()> {
     astar_graph
 }
 
-fn as_astar_edge_uses_graph<N, E>(graph: &Graph<N, E>, start: NodeId) -> Graph<u32, u32> {
+fn as_astar_edge_uses_graph<N, E>(graph: &Graph<N, E>, start: NodeId) -> Graph<f32, f32> {
     let astar = as_astar_graph(graph, start);
-    let mut astar_edge_uses = astar.map_nodes_edges(|_, _| 1, |_, _| 0);
+    let mut astar_edge_uses = astar.map_nodes_edges(|_, _| 1.0f32, |_, _| 1.0f32);
 
     let mut remaining_heads = BinaryHeap::<(u32, NodeId)>::new();
 
@@ -323,29 +323,38 @@ fn as_astar_edge_uses_graph<N, E>(graph: &Graph<N, E>, start: NodeId) -> Graph<u
     while let Some((_, node_id)) = remaining_heads.pop() {
         let neighbors = astar.iter_neighbors(node_id);
 
-        let mut smallest_neighbor = None;
         let mut smallest_neighbor_dist = std::u32::MAX;
+        let mut smallest_neighbor_count = 0;
 
         for neighbor in neighbors {
             let neighbor_dist = *astar.get_node_value(neighbor).unwrap();
 
             if neighbor_dist < smallest_neighbor_dist {
-                smallest_neighbor = Some(neighbor);
                 smallest_neighbor_dist = neighbor_dist;
+                smallest_neighbor_count = 1;
+            } else if neighbor_dist == smallest_neighbor_dist {
+                smallest_neighbor_count += 1;
             }
         }
 
-        let Some(smallest_neighbor) = smallest_neighbor else {
+        if smallest_neighbor_count == 0 {
             continue;
-        };
+        }
+
+        let smallest_neighbors = astar
+            .iter_neighbors(node_id)
+            .filter(|&neighbor| *astar.get_node_value(neighbor).unwrap() == smallest_neighbor_dist);
 
         let current_node_value = *astar_edge_uses.get_node_value(node_id).unwrap();
 
-        let edge_id = EdgeId::new(node_id, smallest_neighbor);
-        *astar_edge_uses.get_edge_mut(edge_id).unwrap() += current_node_value;
-        *astar_edge_uses
-            .get_node_value_mut(smallest_neighbor)
-            .unwrap() += current_node_value;
+        let split_value = current_node_value / smallest_neighbor_count as f32;
+        for smallest_neighbor in smallest_neighbors {
+            let edge_id = EdgeId::new(node_id, smallest_neighbor);
+            *astar_edge_uses.get_edge_mut(edge_id).unwrap() += split_value;
+            *astar_edge_uses
+                .get_node_value_mut(smallest_neighbor)
+                .unwrap() += split_value;
+        }
     }
 
     astar_edge_uses
@@ -371,7 +380,7 @@ fn part1() {
 
     let graph = build_graph(&input);
 
-    let mut edge_values_sum_graph = graph.map_nodes_edges(|_, _| (), |_, _| 0);
+    let mut edge_values_sum_graph = graph.map_nodes_edges(|_, _| (), |_, _| 0.0f32);
 
     for (id, _) in graph.iter_nodes() {
         let astar_edges = as_astar_edge_uses_graph(&graph, id);
@@ -386,42 +395,34 @@ fn part1() {
         edge_uses.push((val, id));
     }
 
-    edge_uses.sort();
-    edge_uses.reverse();
+    edge_uses.sort_by(|a, b| b.0.partial_cmp(a.0).unwrap());
 
-    for (val, id) in &edge_uses {
+    for (val, id) in edge_uses.iter().rev() {
         println!("{}: {}", id, val);
     }
 
-    let mut node_count = graph.nodes.len();
+    let node_count = graph.nodes.len();
 
-    let mut resulting_count = 0;
+    let (val1, id1) = &edge_uses[0];
+    let (val2, id2) = &edge_uses[1];
+    let (val3, id3) = &edge_uses[2];
+    println!("Removed {}: {}", id1, val1);
+    println!("Removed {}: {}", id2, val2);
+    println!("Removed {}: {}", id3, val3);
 
-    'outer: for i in 2..node_count {
-        for j in 1..i {
-            for k in 0..j {
-                let (val1, id1) = &edge_uses[i];
-                let (val2, id2) = &edge_uses[j];
-                let (val3, id3) = &edge_uses[k];
+    let mut test_graph = graph.clone();
 
-                let mut test_graph = graph.clone();
+    test_graph.remove_edge(*id1);
+    test_graph.remove_edge(*id2);
+    test_graph.remove_edge(*id3);
 
-                test_graph.remove_edge(*id1);
-                test_graph.remove_edge(*id2);
-                test_graph.remove_edge(*id3);
+    let graph_size = count_graph_nodes_from(&test_graph, NodeId(0));
 
-                let graph_size = count_graph_nodes_from(&test_graph, NodeId(0));
+    if graph_size >= node_count {
+        panic!("No solution found");
+    };
 
-                if graph_size < node_count {
-                    println!("Removed {}: {}", id1, val1);
-                    println!("Removed {}: {}", id2, val2);
-                    println!("Removed {}: {}", id3, val3);
-                    resulting_count = graph_size;
-                    break 'outer;
-                }
-            }
-        }
-    }
+    let resulting_count = graph_size;
 
     let other_count = node_count - resulting_count;
 
